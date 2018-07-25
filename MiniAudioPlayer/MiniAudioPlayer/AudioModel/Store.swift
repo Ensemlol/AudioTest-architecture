@@ -26,10 +26,10 @@ final class Store {
             let folder = try? JSONDecoder().decode(Folder.self, from: data) {
             self.rootFolder = folder
         } else {
-            self.rootFolder = Folder()
+            self.rootFolder = Folder(name: "", uuid: UUID())
         }
         
-        //self.rootFolder.store = self
+        self.rootFolder.store = self
     }
     
     func fileURL(for recording: Recording) -> URL? {
@@ -47,7 +47,7 @@ final class Store {
     }
     
     func item(atUUIDPath path: [UUID]) -> Item? {
-        return rootFolder
+        return rootFolder.item(atUUIDPath: path[0...])
     }
     
     func removeFile(for recording: Recording) {
