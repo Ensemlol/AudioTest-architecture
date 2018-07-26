@@ -59,6 +59,8 @@ class FolderViewController: UITableViewController {
                 tableView.reloadRows(at: [IndexPath(row: oldIndex, section: 0)], with: .fade)
             default: tableView.reloadData()
             }
+        } else {
+            tableView.reloadData()
         }
     }
     
@@ -69,11 +71,39 @@ class FolderViewController: UITableViewController {
         return nil
     }
     
+    @IBAction func createNewFolder(_ sender: Any) {
+        modalTextAlert(title: .createFolder, accept: .create, placeholder: .folderName) { string in
+            if let s = string {
+                let newFolder = Folder(name: s, uuid: UUID())
+                self.folder.add(newFolder)
+            }
+            self.dismiss(animated: true)
+        }
+    }
+    
+    @IBAction func createNewRecording(_ sender: Any) {
+        performSegue(withIdentifier: .showRecorder, sender: sender)
+    }
+    
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         guard let identifier = segue.identifier else { return }
         if identifier == .showFolder {
+            
             guard let folderViewController = segue.destination as? RecordViewController, let selectedFolder = selectedItem as? Folder else { fatalError() }
             folderViewController.folder = selectedFolder
+        } else if identifier == .showRecorder {
+            
+            guard let recordViewController = segue.destination as? RecordViewController else { fatalError() }
+            recordViewController.folder = folder
+        } else if identifier == .showPlayer {
+            
+            guard let playViewController = (segue.destination as? UINavigationController)?.topViewController as? AudioPlayViewController,
+                let recording = selectedItem as? Recording else { fatalError() }
+            playViewController.recording = recording
+            
+            if let indexPath = tableView.indexPathForSelectedRow {
+                tableView.deselectRow(at: indexPath, animated: true)
+            }
         }
     }
     

@@ -13,7 +13,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UISplitViewControllerDele
 
     var window: UIWindow?
 
-
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {
         
         let splitViewController = window?.rootViewController as! UISplitViewController
@@ -29,9 +28,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UISplitViewControllerDele
         
         guard let topAsDetailController = (secondaryViewController as? UINavigationController)?.topViewController as? AudioPlayViewController else { return false }
         
-//        if topAsDetailController. {
-//            return true
-//        }
+        if topAsDetailController.recording == nil {
+            return true
+        }
         return false
     }
 
@@ -56,7 +55,4 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UISplitViewControllerDele
     func applicationWillTerminate(_ application: UIApplication) {
         // Called when the application is about to terminate. Save data if appropriate. See also applicationDidEnterBackground:.
     }
-
-
 }
-

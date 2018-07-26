@@ -10,4 +10,12 @@ import UIKit
 
 class AudioPlayViewController: UIViewController {
     
+    
+    
+    var audioPlayer: AudioPlayer?
+    var recording: Recording? {
+        didSet {
+            
+        }
+    }
 }
