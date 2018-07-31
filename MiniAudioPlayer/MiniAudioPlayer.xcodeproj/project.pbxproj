@@ -21,6 +21,15 @@
 		2F85E1C82109A2370045598D /* Utilities.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F85E1C72109A2370045598D /* Utilities.swift */; };
 		2F85E1CC2109A4720045598D /* AudioPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F85E1CB2109A4720045598D /* AudioPlayer.swift */; };
 		2F85E1CE2109A7210045598D /* Recorder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F85E1CD2109A7210045598D /* Recorder.swift */; };
+		2FAFC8D6210FF2D00071EC84 /* MiniCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2FAFC8D5210FF2D00071EC84 /* MiniCache.swift */; };
+		2FAFC8D8210FF3430071EC84 /* MiniMemoryCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2FAFC8D7210FF3430071EC84 /* MiniMemoryCache.swift */; };
+		2FAFC8DA210FF35F0071EC84 /* MiniDiskCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2FAFC8D9210FF35F0071EC84 /* MiniDiskCache.swift */; };
+		2FAFC8DC210FF37E0071EC84 /* MiniKVStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2FAFC8DB210FF37E0071EC84 /* MiniKVStorage.swift */; };
+		2FAFC8E0210FFC610071EC84 /* Request.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2FAFC8DF210FFC610071EC84 /* Request.swift */; };
+		2FAFC8E22110003E0071EC84 /* TaskDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2FAFC8E12110003E0071EC84 /* TaskDelegate.swift */; };
+		2FAFC8E42110660F0071EC84 /* ParameterEncoding.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2FAFC8E32110660F0071EC84 /* ParameterEncoding.swift */; };
+		2FAFC8E62110679D0071EC84 /* MiniNetwork.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2FAFC8E52110679D0071EC84 /* MiniNetwork.swift */; };
+		2FAFC8E8211068DA0071EC84 /* hxError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2FAFC8E7211068DA0071EC84 /* hxError.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -40,6 +49,15 @@
 		2F85E1C72109A2370045598D /* Utilities.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Utilities.swift; sourceTree = "<group>"; };
 		2F85E1CB2109A4720045598D /* AudioPlayer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioPlayer.swift; sourceTree = "<group>"; };
 		2F85E1CD2109A7210045598D /* Recorder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Recorder.swift; sourceTree = "<group>"; };
+		2FAFC8D5210FF2D00071EC84 /* MiniCache.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MiniCache.swift; sourceTree = "<group>"; };
+		2FAFC8D7210FF3430071EC84 /* MiniMemoryCache.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MiniMemoryCache.swift; sourceTree = "<group>"; };
+		2FAFC8D9210FF35F0071EC84 /* MiniDiskCache.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MiniDiskCache.swift; sourceTree = "<group>"; };
+		2FAFC8DB210FF37E0071EC84 /* MiniKVStorage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MiniKVStorage.swift; sourceTree = "<group>"; };
+		2FAFC8DF210FFC610071EC84 /* Request.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Request.swift; sourceTree = "<group>"; };
+		2FAFC8E12110003E0071EC84 /* TaskDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskDelegate.swift; sourceTree = "<group>"; };
+		2FAFC8E32110660F0071EC84 /* ParameterEncoding.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ParameterEncoding.swift; sourceTree = "<group>"; };
+		2FAFC8E52110679D0071EC84 /* MiniNetwork.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MiniNetwork.swift; sourceTree = "<group>"; };
+		2FAFC8E7211068DA0071EC84 /* hxError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = hxError.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -72,9 +90,11 @@
 		2F5004CF2107074100DE006B /* MiniAudioPlayer */ = {
 			isa = PBXGroup;
 			children = (
+				2FAFC8DE210FFBFB0071EC84 /* Network */,
 				2F5004E22107087A00DE006B /* App+Views */,
 				2F5004E52107094400DE006B /* AudioModel */,
 				2F85E1C62109A2160045598D /* Helpers */,
+				2FAFC8D3210FF2610071EC84 /* Kit+Extensions */,
 				2F5004D02107074100DE006B /* AppDelegate.swift */,
 				2F5004D42107074200DE006B /* Main.storyboard */,
 				2F5004D72107074300DE006B /* Assets.xcassets */,
@@ -113,6 +133,45 @@
 				2F85E1CB2109A4720045598D /* AudioPlayer.swift */,
 			);
 			path = Helpers;
+			sourceTree = "<group>";
+		};
+		2FAFC8D3210FF2610071EC84 /* Kit+Extensions */ = {
+			isa = PBXGroup;
+			children = (
+				2FAFC8DD210FFBEA0071EC84 /* Image */,
+				2FAFC8D4210FF26D0071EC84 /* Cache */,
+			);
+			path = "Kit+Extensions";
+			sourceTree = "<group>";
+		};
+		2FAFC8D4210FF26D0071EC84 /* Cache */ = {
+			isa = PBXGroup;
+			children = (
+				2FAFC8D5210FF2D00071EC84 /* MiniCache.swift */,
+				2FAFC8D7210FF3430071EC84 /* MiniMemoryCache.swift */,
+				2FAFC8D9210FF35F0071EC84 /* MiniDiskCache.swift */,
+				2FAFC8DB210FF37E0071EC84 /* MiniKVStorage.swift */,
+			);
+			path = Cache;
+			sourceTree = "<group>";
+		};
+		2FAFC8DD210FFBEA0071EC84 /* Image */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = Image;
+			sourceTree = "<group>";
+		};
+		2FAFC8DE210FFBFB0071EC84 /* Network */ = {
+			isa = PBXGroup;
+			children = (
+				2FAFC8E52110679D0071EC84 /* MiniNetwork.swift */,
+				2FAFC8E7211068DA0071EC84 /* hxError.swift */,
+				2FAFC8DF210FFC610071EC84 /* Request.swift */,
+				2FAFC8E12110003E0071EC84 /* TaskDelegate.swift */,
+				2FAFC8E32110660F0071EC84 /* ParameterEncoding.swift */,
+			);
+			path = Network;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -186,14 +245,23 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				2FAFC8E42110660F0071EC84 /* ParameterEncoding.swift in Sources */,
+				2FAFC8DA210FF35F0071EC84 /* MiniDiskCache.swift in Sources */,
+				2FAFC8E8211068DA0071EC84 /* hxError.swift in Sources */,
+				2FAFC8E62110679D0071EC84 /* MiniNetwork.swift in Sources */,
+				2FAFC8E0210FFC610071EC84 /* Request.swift in Sources */,
 				2F5004ED210711D900DE006B /* Store.swift in Sources */,
 				2F5004E7210710D300DE006B /* FolderViewController.swift in Sources */,
 				2F85E1CC2109A4720045598D /* AudioPlayer.swift in Sources */,
+				2FAFC8DC210FF37E0071EC84 /* MiniKVStorage.swift in Sources */,
+				2FAFC8D6210FF2D00071EC84 /* MiniCache.swift in Sources */,
 				2F85E1CE2109A7210045598D /* Recorder.swift in Sources */,
 				2F5004E92107111500DE006B /* Folder.swift in Sources */,
 				2F090EF021086F7F00B3B887 /* RecordViewController.swift in Sources */,
 				2F5004D12107074100DE006B /* AppDelegate.swift in Sources */,
+				2FAFC8D8210FF3430071EC84 /* MiniMemoryCache.swift in Sources */,
 				2F5004EB2107113700DE006B /* Item.swift in Sources */,
+				2FAFC8E22110003E0071EC84 /* TaskDelegate.swift in Sources */,
 				2F5004E4210708C000DE006B /* AudioPlayViewController.swift in Sources */,
 				2F85E1C82109A2370045598D /* Utilities.swift in Sources */,
 				2F5004EF2107141700DE006B /* Recording.swift in Sources */,
