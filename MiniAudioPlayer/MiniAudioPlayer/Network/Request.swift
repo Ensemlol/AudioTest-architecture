@@ -76,16 +76,36 @@ open class Request {
     /// The request sent or to be sent to the server.
     open var request: URLRequest? { return task?.originalRequest }
     
+    /// The response received from the server, if any.
+    open var response: HTTPURLResponse? { return task?.response as? HTTPURLResponse }
+    
+    /// The number of times the request has been retried.
+    open internal(set) var retryCount: UInt = 0
+    
+    let originalTask: TaskConvertible?
+    
+    var startTime: CFAbsoluteTime?
+    var endTime: CFAbsoluteTime?
+    
+    var validations: [() -> Void] = []
+    
     private var taskDelegate: TaskDelegate
     private var taskDelegateLock = NSLock()
     
     init(session: URLSession, requestTask: RequestTask, error: Error? = nil) {
         self.session = session
         
-//        delegate.error = error
-//        delegate.queue.addOperation {
-//            
-//        }
+        switch requestTask {
+        case .data(let originalTask, let task): taskDelegate = DataTaskDelegate
+            <#code#>
+        default:
+            <#code#>
+        }
+        
+        delegate.error = error
+        delegate.queue.addOperation {
+            
+        }
     }
 }
 
@@ -149,5 +169,35 @@ open class DataRequest: Request {
 
 // MARK: - Specific type of `Request` that manages an underlying `URLSessionUploadTask`.
 open class UploadRequest {
+    
+}
+
+// MARK: - Specific type of `Request` that manages an underlying `URLSessionDownloadTask`.
+
+open class DownloadRequest: Request {
+    
+    // MARK: - Helper Types
+    
+    /// A collection of options to be executed prior to moving a downloaded file from the temporary URL to the destination URL.
+    struct DownloadOptions: OptionSet {
+        /// Returns the raw bitmask value of the option and satisfies the `RawRepresentable` protocol.
+        public let rawValue: UInt
+        
+        /// A `DownloadOptions` flag that creates intermediate directories for the destination URL if specified.
+        static let createIntermediateDirectories = DownloadOptions(rawValue: 1 << 0)
+        
+        /// A `DownloadOptions` flag that removes a previous file from the destination URL if specified.
+        static let removePreviousFile = DownloadOptions(rawValue: 1 << 1)
+        
+        /// Creates a `downloadFileDestinationOptions` instance with the specified raw value.
+        ///
+        /// - Parameter rawValue: The raw bitmask value for the option.
+        ///
+        /// - Returns: A new log level instance.
+        public init(rawValue: UInt) {
+            self.rawValue = rawValue
+        }
+    }
+    
     
 }

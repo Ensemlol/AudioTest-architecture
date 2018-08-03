@@ -18,6 +18,9 @@
 		2F5004EB2107113700DE006B /* Item.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F5004EA2107113700DE006B /* Item.swift */; };
 		2F5004ED210711D900DE006B /* Store.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F5004EC210711D900DE006B /* Store.swift */; };
 		2F5004EF2107141700DE006B /* Recording.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F5004EE2107141700DE006B /* Recording.swift */; };
+		2F7B51C72113FB62009301FD /* SessionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F7B51C62113FB62009301FD /* SessionManager.swift */; };
+		2F7B51C92113FD32009301FD /* SessionDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F7B51C82113FD32009301FD /* SessionDelegate.swift */; };
+		2F7B51CB2113FDFB009301FD /* ServerTrustPolicy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F7B51CA2113FDFB009301FD /* ServerTrustPolicy.swift */; };
 		2F85E1C82109A2370045598D /* Utilities.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F85E1C72109A2370045598D /* Utilities.swift */; };
 		2F85E1CC2109A4720045598D /* AudioPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F85E1CB2109A4720045598D /* AudioPlayer.swift */; };
 		2F85E1CE2109A7210045598D /* Recorder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F85E1CD2109A7210045598D /* Recorder.swift */; };
@@ -46,6 +49,9 @@
 		2F5004EA2107113700DE006B /* Item.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Item.swift; sourceTree = "<group>"; };
 		2F5004EC210711D900DE006B /* Store.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Store.swift; sourceTree = "<group>"; };
 		2F5004EE2107141700DE006B /* Recording.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Recording.swift; sourceTree = "<group>"; };
+		2F7B51C62113FB62009301FD /* SessionManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionManager.swift; sourceTree = "<group>"; };
+		2F7B51C82113FD32009301FD /* SessionDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionDelegate.swift; sourceTree = "<group>"; };
+		2F7B51CA2113FDFB009301FD /* ServerTrustPolicy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ServerTrustPolicy.swift; sourceTree = "<group>"; };
 		2F85E1C72109A2370045598D /* Utilities.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Utilities.swift; sourceTree = "<group>"; };
 		2F85E1CB2109A4720045598D /* AudioPlayer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioPlayer.swift; sourceTree = "<group>"; };
 		2F85E1CD2109A7210045598D /* Recorder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Recorder.swift; sourceTree = "<group>"; };
@@ -170,6 +176,9 @@
 				2FAFC8DF210FFC610071EC84 /* Request.swift */,
 				2FAFC8E12110003E0071EC84 /* TaskDelegate.swift */,
 				2FAFC8E32110660F0071EC84 /* ParameterEncoding.swift */,
+				2F7B51C62113FB62009301FD /* SessionManager.swift */,
+				2F7B51C82113FD32009301FD /* SessionDelegate.swift */,
+				2F7B51CA2113FDFB009301FD /* ServerTrustPolicy.swift */,
 			);
 			path = Network;
 			sourceTree = "<group>";
@@ -257,6 +266,7 @@
 				2FAFC8D6210FF2D00071EC84 /* MiniCache.swift in Sources */,
 				2F85E1CE2109A7210045598D /* Recorder.swift in Sources */,
 				2F5004E92107111500DE006B /* Folder.swift in Sources */,
+				2F7B51CB2113FDFB009301FD /* ServerTrustPolicy.swift in Sources */,
 				2F090EF021086F7F00B3B887 /* RecordViewController.swift in Sources */,
 				2F5004D12107074100DE006B /* AppDelegate.swift in Sources */,
 				2FAFC8D8210FF3430071EC84 /* MiniMemoryCache.swift in Sources */,
@@ -265,6 +275,8 @@
 				2F5004E4210708C000DE006B /* AudioPlayViewController.swift in Sources */,
 				2F85E1C82109A2370045598D /* Utilities.swift in Sources */,
 				2F5004EF2107141700DE006B /* Recording.swift in Sources */,
+				2F7B51C72113FB62009301FD /* SessionManager.swift in Sources */,
+				2F7B51C92113FD32009301FD /* SessionDelegate.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
