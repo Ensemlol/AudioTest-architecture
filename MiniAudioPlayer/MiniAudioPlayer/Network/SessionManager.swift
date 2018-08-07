@@ -108,6 +108,11 @@ open class SessionManager {
     /// The request adapter called each time a new request is created.
     open var adapter: RequestAdapter?
     
+    open var retrier: RequestRetrier? {
+        get { return delegate.retrier }
+        set { delegate.retrier = newValue }
+    }
+    
     
     /// The background completion hander closure provided by the UIApplicationDelegate
     /// `application:HandlerEventsForBackgroundURLSession:completionHandler:` method. By setting the background completion handler, the SessionDelegate `sessionDidFinishEvnetsForBackgroundURLSession` closure implementation will automatically call the handler.
@@ -131,16 +136,143 @@ open class SessionManager {
         commonInit(serverTrustPolicyManager: serverTrustPolicyManager)
     }
     
+    /// Creates an instance with the specified `session`, `delegate` and `serverTrustPolicyManager`.
+    ///
+    /// - Parameters:
+    ///   - session:                  The URL session.
+    ///   - delegate:                 The delegate of the URL session. Must equal the URL session's delegate.
+    ///   - serverTrustPolicyManager: The server trust policy manager to use for evaluating all server trust challenges. `nil` by default.
+    public init?(session: URLSession, delegate: SessionDelegate, serverTrustPolicyManager: ServerTrustPolicyManager? = nil) {
+        guard delegate === session.delegate else { return nil }
+        
+        self.delegate = delegate
+        self.session = session
+        
+        commonInit(serverTrustPolicyManager: serverTrustPolicyManager)
+    }
+    
     public func commonInit(serverTrustPolicyManager: ServerTrustPolicyManager?) {
         session.serverTrustPolicyManager = serverTrustPolicyManager
         
+        delegate.sessionManager = self
+        delegate.sessionDidFinishEvemtsForBackgroundURLSession = { [weak self] session in
+            guard let strongSelf = self else { return }
+            DispatchQueue.main.async { strongSelf.backgroundCompletionHandler?() }
+        }
     }
     
     deinit {
         session.invalidateAndCancel()
     }
     
-    open func request() -> DataRequest {
+    open func request(_ url: URLConvertible,
+                      method: HTTPMethod = .get,
+                      parameters: Parameters? = nil,
+                      encoding: ParametersEncoding = URLEncoding.default,
+                      headers: HTTPHeaders? = nil) -> DataRequest {
         
+        var originalRequest: URLRequest?
+        
+        do {
+            originalRequest = try URLRequest(url: url, method: method, headers: headers)
+            let encodedURLRequest = try encoding.encode(originalRequest!, with: parameters)
+            return request(encodedURLRequest)
+        } catch {
+            return request(originalRequest, failedWith: error)
+        }
+    }
+    
+    open func request(_ urlRequest: URLRequestConvertible) -> DataRequest {
+        
+        var originalRequest: URLRequest?
+        
+        do {
+            originalRequest = try urlRequest.asURLRequest()
+            let originalTask = DataRequest.Requestable(urlRequest: originalRequest!)
+            
+            let task = try originalTask.task(session: session, adapter: adapter, queue: queue)
+            let request = DataRequest(session: session, requestTask: .data(originalTask, task))
+            
+            delegate[task] = request
+            
+            if startRequestsImmediately { request.resume() }
+            
+            return request
+        } catch {
+            return request(originalRequest, failedWith: error)
+        }
+    }
+    
+    private func request(_ urlRequest: URLRequest?,
+                         failedWith error: Error) -> DataRequest {
+        var requestTask: Request.RequestTask = .data(nil, nil)
+        
+        if let urlRequest = urlRequest {
+            let originalTask = DataRequest.Requestable(urlRequest: urlRequest)
+            requestTask = .data(originalTask, nil)
+        }
+        
+        let underlyingError = error.underlyingAdaptError ?? error
+        let request = DataRequest(session: session, requestTask: requestTask, error: underlyingError)
+        
+        if let retrier = retrier, error is AdaptError {
+            allowRetrier(retrier, toRetry: request, with: underlyingError)
+        } else {
+            if startRequestsImmediately { request.resume() }
+        }
+        
+        return request
+    }
+    
+    // MARK; - Download Request.
+    
+    
+    
+    // MARK: - Internal - Retry Request.
+    
+    func retry(_ request: Request) -> Bool {
+        guard let originalTask = request.originalTask else { return false }
+        
+        do {
+            let task = try originalTask.task(session: session, adapter: adapter, queue: queue)
+            
+            request.delegate.task = task // resets all task delegate data.
+            
+            request.retryCount += 1
+            request.startTime = CFAbsoluteTimeGetCurrent()
+            request.endTime = nil
+            
+            task.resume()
+            
+            return true
+        } catch {
+            request.delegate.error = error.underlyingAdaptError ?? error
+            return false
+        }
+    }
+    
+    private func allowRetrier(_ retrier: RequestRetrier, toRetry request: Request, with error: Error) {
+        DispatchQueue.utility.async { [weak self] in
+            guard let strongSelf = self else { return }
+            
+            retrier.should(strongSelf, retry: request, with: error) { shouldRetry, timeDelay in
+                guard let strongSelf = self else { return }
+                guard shouldRetry else {
+                    if strongSelf.startRequestsImmediately { request.resume() }
+                    return
+                }
+                
+                DispatchQueue.utility.after(timeDelay) {
+                    guard let strongSelf = self else { return }
+                    
+                    let retrySucceeded = strongSelf.retry(request)
+                    if retrySucceeded, let task = request.task {
+                        strongSelf.delegate[task] = request
+                    } else {
+                        if strongSelf.startRequestsImmediately { request.resume() }
+                    }
+                }
+            }
+        }
     }
 }

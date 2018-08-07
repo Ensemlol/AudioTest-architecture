@@ -134,5 +134,9 @@ public func request(_ url: URLConvertible,
                     headers: HTTPHeaders? = nil)
         -> DataRequest {
     
-        return SessionManager.default.request()
+        return SessionManager.default.request(url,
+                                              method: method,
+                                              parameters: parameters,
+                                              encoding: encoding,
+                                              headers: headers)
 }

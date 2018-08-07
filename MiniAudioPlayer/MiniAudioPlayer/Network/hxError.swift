@@ -71,3 +71,7 @@ public enum hxError: Error {
 struct AdaptError: Error {
     let error: Error
 }
+
+extension Error {
+    var underlyingAdaptError: Error? { return (self as? AdaptError)?.error }
+}

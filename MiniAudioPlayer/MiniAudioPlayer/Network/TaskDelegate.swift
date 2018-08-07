@@ -206,12 +206,14 @@ class DownloadTaskDelegate: TaskDelegate, URLSessionDownloadDelegate {
     var  resumeData: Data?
     override var data: Data? { return resumeData }
     
-    
+    var destincation: DownloadRequest.DownloadFileDestination?
     
     var temporaryURL: URL?
     var destinationURL: URL?
     
-    var fileURL: URL?
+    var fileURL: URL? { return destincation != nil ? destinationURL : temporaryURL }
+    
+    // MARK: - Lifecycle
     
     override init(task: URLSessionTask?) {
         progress = Progress(totalUnitCount: 0)
@@ -227,13 +229,65 @@ class DownloadTaskDelegate: TaskDelegate, URLSessionDownloadDelegate {
     
     // MARK: - URLSessionDownloadDelegate
     
-    var downloadTaskDidFinishDownloadingToURL:(URLSession, URLSessionDownloadTask, URL) -> URL
+    var downloadTaskDidFinishDownloadingToURL: ((URLSession, URLSessionDownloadTask, URL) -> URL)?
+    var downloadTaskDidWriteData: ((URLSession, URLSessionDownloadTask, Int64, Int64) -> Void)?
+    var downloadTaskDidResumeAtOffset: ((URLSession, URLSessionDownloadTask, Int64, Int64) -> Void)?
     
     func urlSession(
         _ session: URLSession,
         downloadTask: URLSessionDownloadTask,
         didFinishDownloadingTo location: URL) {
         
+        temporaryURL = location
         
+        guard let destination = destincation,
+            let response = downloadTask.response as? HTTPURLResponse else { return }
+        
+        let result = destination(location, response)
+        let destinationURL = result.destinationURL
+        let options = result.options
+        
+        self.destinationURL = destinationURL
+        
+        do {
+            if options.contains(.removePreviousFile), FileManager.default.fileExists(atPath: destinationURL.path) {
+                try FileManager.default.removeItem(at: destinationURL)
+            }
+            
+            if options.contains(.createIntermediateDirectories) {
+                let directory = destinationURL.deletingLastPathComponent()
+                try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
+            }
+            
+            try FileManager.default.moveItem(at: location, to: destinationURL)
+        } catch {
+            self.error = error
+        }
     }
+}
+
+// MARK: -
+
+class UploadTaskDelegate: DataTaskDelegate {
+    
+    // MARK: - Properties
+    
+    var uploadTask: URLSessionUploadTask { return task as! URLSessionUploadTask }
+    
+    var uploadProgress: Progress
+    var uploadProgressHandler: (closure: Request.ProgressHandler, queue: DispatchQueue)?
+    
+    // MARK: - Lifecycle
+    
+    override init(task: URLSessionTask?) {
+        uploadProgress = Progress(totalUnitCount: 0)
+        super.init(task: task)
+    }
+    
+    override func reset() {
+        super.reset()
+        uploadProgress = Progress(totalUnitCount: 0)
+    }
+    
+    
 }

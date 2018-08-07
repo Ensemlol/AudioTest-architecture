@@ -23,6 +23,26 @@ public protocol RequestAdapter {
     func adapt(_ urlRequest: URLRequest) throws -> URLRequest
 }
 
+// MARK: -
+
+/// A closure executed when the `RequestRetruer` determines whether a `Request` should be retried or not.
+public typealias RequestRetryCompletion = (_ shouldRetry: Bool, _ timeDelay: TimeInterval) -> Void
+
+/// A type that determines whether a request should be retrued after being executed by the specified session manager and encountering an error.
+public protocol RequestRetrier {
+    
+    /// DeterMines whether the `Request` should be retried by calling the `completion` closure.
+    ///
+    /// This operation is fully asynchronous. Any amount of time can be taken to determine whether the request needs to be retried. The one requirement is that the completion closure is called to ensure the request is properly cleaned up after.
+    ///
+    /// - Parameters:
+    ///   - manager:    The session manage the request was executed on.
+    ///   - request:    The request that failed due to the encountered error.
+    ///   - error:      The error encountered when executing the request.
+    ///   - completion: The completion closure to be executed when retry decision has been determined.
+    func should(_ manager: SessionManager, retry request: Request, with error: Error, completion: @escaping RequestRetryCompletion)
+}
+
 
 
 
@@ -33,7 +53,7 @@ public typealias HTTPHeaders = [String: String]
 
 
 protocol TaskConvertible {
-    func task(session: URLSession, adapter: RequestAdapter, queue: DispatchQueue) throws -> URLSessionTask
+    func task(session: URLSession, adapter: RequestAdapter?, queue: DispatchQueue) throws -> URLSessionTask
 }
 
 
@@ -50,7 +70,7 @@ open class Request {
     enum RequestTask {
         case data(TaskConvertible?, URLSessionTask?)
         case download(TaskConvertible?, URLSessionTask?)
-        case upload(TaskConvertible?, URLSessionDelegate?)
+        case upload(TaskConvertible?, URLSessionTask?)
         case stream(TaskConvertible?, URLSessionTask?)
     }
     
@@ -96,46 +116,59 @@ open class Request {
         self.session = session
         
         switch requestTask {
-        case .data(let originalTask, let task): taskDelegate = DataTaskDelegate
-            <#code#>
-        default:
-            <#code#>
+        case .data(let originalTask, let task):
+            taskDelegate = DataTaskDelegate(task: task)
+            self.originalTask = originalTask
+        case .download(let originalTask, let task):
+            taskDelegate = DownloadTaskDelegate(task: task)
+            self.originalTask = originalTask
+        case .upload(let originalTask, let task):
+            taskDelegate = UploadTaskDelegate(task: task)
+            self.originalTask = originalTask
+        case .stream(let originalTask, let task):
+            taskDelegate = TaskDelegate(task: task)
+            self.originalTask = originalTask
         }
         
         delegate.error = error
-        delegate.queue.addOperation {
-            
-        }
-    }
-}
-
-extension URLRequest {
-    
-    /// Creates an instance with the specified `method`, `urlString` and `headers`.
-    ///
-    /// - Parameters:
-    ///   - url:     The URL.
-    ///   - method:  The HTTP method.
-    ///   - headers: The HTTP headers. `nil` by default.
-    ///
-    /// - Throws:    The new `URLRequest` instance.
-    public init(url: URLConvertible, method: HTTPMethod, headers: HTTPHeaders? = nil) throws {
-        let url = try url.asURL()
-        
-        self.init(url: url)
-        
-        httpMethod = method.rawValue
-        
-        if let headers = headers {
-            for (headerField, headerValue) in headers {
-                setValue(headerValue, forHTTPHeaderField: headerField)
-            }
-        }
+        delegate.queue.addOperation { self.endTime = CFAbsoluteTimeGetCurrent() }
     }
     
-    func adapt(using adapter: RequestAdapter?) throws -> URLRequest {
-        guard let adapter = adapter else { return self }
-        return try adapter.adapt(self)
+    // MARK: - State
+    
+    /// Resumes the request.
+    open func resume() {
+        guard let task = task else { delegate.queue.isSuspended = false ; return }
+        
+        if startTime == nil { startTime = CFAbsoluteTimeGetCurrent() }
+        
+        task.resume()
+        
+        NotificationCenter.default.post(name: Notification.Name.Task.DidResume,
+                                        object: self,
+                                        userInfo: [Notification.Key.Task: task])
+    }
+    
+    /// Suspends the request.
+    open func suspend() {
+        guard let task = task else { return }
+        
+        task.suspend()
+        
+        NotificationCenter.default.post(name: Notification.Name.Task.DidSuspend,
+                                        object: self,
+                                        userInfo: [Notification.Key.Task: task])
+    }
+    
+    /// Cancels the request.
+    open func cancel() {
+        guard let task = task else { return }
+        
+        task.cancel()
+        
+        NotificationCenter.default.post(name: Notification.Name.Task.DidCancel,
+                                        object: self,
+                                        userInfo: [Notification.Key.Task: task])
     }
 }
 
@@ -146,7 +179,7 @@ open class DataRequest: Request {
     struct Requestable: TaskConvertible {
         let urlRequest: URLRequest
         
-        func task(session: URLSession, adapter: RequestAdapter, queue: DispatchQueue) throws -> URLSessionTask {
+        func task(session: URLSession, adapter: RequestAdapter?, queue: DispatchQueue) throws -> URLSessionTask {
             do {
                 let urlRequest = try self.urlRequest.adapt(using: adapter)
                 return queue.sync { session.dataTask(with: urlRequest) }
@@ -179,15 +212,15 @@ open class DownloadRequest: Request {
     // MARK: - Helper Types
     
     /// A collection of options to be executed prior to moving a downloaded file from the temporary URL to the destination URL.
-    struct DownloadOptions: OptionSet {
+    public struct DownloadOptions: OptionSet {
         /// Returns the raw bitmask value of the option and satisfies the `RawRepresentable` protocol.
         public let rawValue: UInt
         
         /// A `DownloadOptions` flag that creates intermediate directories for the destination URL if specified.
-        static let createIntermediateDirectories = DownloadOptions(rawValue: 1 << 0)
+        public static let createIntermediateDirectories = DownloadOptions(rawValue: 1 << 0)
         
         /// A `DownloadOptions` flag that removes a previous file from the destination URL if specified.
-        static let removePreviousFile = DownloadOptions(rawValue: 1 << 1)
+        public static let removePreviousFile = DownloadOptions(rawValue: 1 << 1)
         
         /// Creates a `downloadFileDestinationOptions` instance with the specified raw value.
         ///
@@ -199,5 +232,7 @@ open class DownloadRequest: Request {
         }
     }
     
-    
+    public typealias DownloadFileDestination = (
+        _ temporaryURL: URL,
+        _ response: HTTPURLResponse) -> (destinationURL: URL, options: DownloadOptions)
 }
